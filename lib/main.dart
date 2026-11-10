@@ -1,7 +1,33 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
+}
+
+class Pokemon {
+  final String name;
+  final String imageUrl;
+
+  const Pokemon({required this.name, required this.imageUrl});
+
+  factory Pokemon.fromJson(Map<String, dynamic> json) {
+    return Pokemon(
+      name: json['name'],
+      imageUrl: json['sprites']['front_default'],
+    );
+  }
+}
+
+Future<Pokemon> fetchPokemon() async {
+  final response = await http.get(Uri.parse('https://pokeapi.co/api/v2/pokemon/pikachu'));
+
+  if (response.statusCode == 200) {
+    return Pokemon.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception('Error al cargar el Pokémon');
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -9,70 +35,74 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'LDSW App',
-      home: HomeScreen(),
+    return MaterialApp(
+      title: 'LDSW HTTP App',
+      theme: ThemeData(primarySwatch: Colors.red),
+      home: const PokemonScreen(),
     );
   }
 }
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class PokemonScreen extends StatefulWidget {
+  const PokemonScreen({super.key});
+
+  @override
+  State<PokemonScreen> createState() => _PokemonScreenState();
+}
+
+class _PokemonScreenState extends State<PokemonScreen> {
+  late Future<Pokemon> futurePokemon;
+
+  @override
+  void initState() {
+    super.initState();
+    futurePokemon = fetchPokemon(); 
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: NetworkImage('https://images.unsplash.com/photo-1550439062-609e1531270e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          Container(
-            color: Colors.black.withOpacity(0.6),
-          ),
-          SafeArea(
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'LDSW App',
-                    style: TextStyle(
-                      fontSize: 48,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+      appBar: AppBar(
+        title: const Text('Petición HTTP: PokéAPI'),
+        backgroundColor: Colors.redAccent,
+      ),
+      body: Center(
+        child: FutureBuilder<Pokemon>(
+          future: futurePokemon,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else if (snapshot.hasData) {
+              return Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.blue[50],
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      snapshot.data!.name.toUpperCase(),
+                      style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                     ),
-                  ),
-                  const SizedBox(height: 15),
-                  const Text(
-                    '¡Bienvenido a tu aplicación!',
-                    style: TextStyle(
-                      fontSize: 22,
-                      color: Colors.white70,
+                    const SizedBox(height: 10),
+                    Image.network(
+                      snapshot.data!.imageUrl,
+                      width: 150,
+                      height: 150,
+                      fit: BoxFit.cover,
                     ),
-                  ),
-                  const SizedBox(height: 40),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(Icons.rocket_launch, color: Colors.blueAccent, size: 28),
-                      SizedBox(width: 10),
-                      Text(
-                        'Comienza a explorar',
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+                  ],
+                ),
+              );
+            }
+            return const Text('No hay datos disponibles');
+          },
+        ),
       ),
     );
   }
