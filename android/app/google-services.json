@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "782705520790",
+    "project_id": "ldsw-flutter-app",
+    "storage_bucket": "ldsw-flutter-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:782705520790:android:1eeb9f65d4fe77eb5f12b7",
+        "android_client_info": {
+          "package_name": "com.example.ldsw_utilizacion_widgets"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_UAmc1Wmhb-Of2Cajb4P8CuA8S82NSVs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

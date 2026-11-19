@@ -2,7 +2,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-void main() {
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -36,7 +43,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'LDSW HTTP App',
+      title: 'LDSW Firebase & HTTP App',
       theme: ThemeData(primarySwatch: Colors.red),
       home: const PokemonScreen(),
     );
@@ -56,14 +63,14 @@ class _PokemonScreenState extends State<PokemonScreen> {
   @override
   void initState() {
     super.initState();
-    futurePokemon = fetchPokemon(); 
+    futurePokemon = fetchPokemon();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Petición HTTP: PokéAPI'),
+        title: const Text('Firebase Conectado + PokéAPI'),
         backgroundColor: Colors.redAccent,
       ),
       body: Center(
@@ -85,6 +92,11 @@ class _PokemonScreenState extends State<PokemonScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    const Chip(
+                      label: Text('Firebase Inicializado'),
+                      backgroundColor: Colors.amberAccent,
+                    ),
+                    const SizedBox(height: 10),
                     Text(
                       snapshot.data!.name.toUpperCase(),
                       style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
